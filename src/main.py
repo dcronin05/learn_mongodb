@@ -1,6 +1,5 @@
 import extract
 import search
-import pprint
 
 def prompt():
     return input("Search Value: ")
