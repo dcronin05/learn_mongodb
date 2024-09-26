@@ -4,24 +4,52 @@ import lib
 raw_manifest = open("/mnt/user/media/paperless/export/manifest.json")
 manifest = lib.json.load(raw_manifest)
 
-mongo = lib.pymongo.MongoClient("localhost", 27017)
-db = mongo.paperless
-
 # export directory for created md files
 directory = '/mnt/user/repos/docs/paperless_export'
 
-def output(t, c):
-    db.content.insert_one({"title": t, "content": c})
+index_num = 1
+
+existing, inserted, big, duplicates = 0, 0, 0, 0
+
+def insert(r):
+    lib.db.insert_one({"title": r["title"],
+                               "content": r["content"],
+                               "checksum": r["check"],
+                               "index": r["index"]})
+
+def exists(r):
+    global existing, duplicates
+    record = lib.db.find_one({"checksum": r["check"]})
+    dupe = lib.db.find_one({"content": r["content"], "title": r["title"]})
+
+    if dupe:
+        if record:
+            existing = existing + 1
+            return True
+        duplicates = duplicates + 1
+        return True
+    else: return False
 
 def parse():
+    global inserted, big, index_num
     print("entering parse()")
     # for every document in the export
-    for field in manifest:
+    for document in manifest:
         #if the title and content tags aren't blank
-        if "title" in field["fields"]:
-            title = field["fields"]["title"]
-            if "content" in field["fields"]:
-                content = field["fields"]["content"]
-                if content != "" and title != "" and lib.sys.getsizeof(content) < 999999:
-                    print(title)
-                    output(title, content)
+        try:
+            record = {"title": document["fields"]["title"],
+                      "content": document["fields"]["content"],
+                      "check": document["fields"]["checksum"],
+                      "index": index_num}
+
+            if lib.sys.getsizeof(record["content"]) < 16777216:
+                if record["content"] != "" and record["title"] != "":
+                    if not exists(record):
+                        insert(record)
+                        inserted = inserted + 1
+                        index_num = index_num + 1
+            else: big = big + 1
+        except KeyError:
+            continue
+
+
