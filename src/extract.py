@@ -4,9 +4,6 @@ import lib
 raw_manifest = open("/mnt/user/media/paperless/media/backup/manifest.json")
 manifest = lib.json.load(raw_manifest)
 
-# export directory for created md files
-directory = '/mnt/user/repos/docs/paperless_export'
-
 index_num = 1
 
 existing, inserted, big, duplicates = 0, 0, 0, 0
