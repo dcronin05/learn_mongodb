@@ -1,7 +1,7 @@
 import lib
 
 # import paperless database export
-raw_manifest = open("/mnt/user/media/paperless/export/manifest.json")
+raw_manifest = open("/mnt/user/media/paperless/media/backup/manifest.json")
 manifest = lib.json.load(raw_manifest)
 
 # export directory for created md files
