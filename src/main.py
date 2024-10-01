@@ -1,12 +1,13 @@
 import extract
 import search
+import insert
 
 def prompt():
     return input("Search Value: ")
 
 def menu():
     value = prompt()
-    while value != "quit":
+    while value != "quit" or value != "reload":
         results = search.query(value)
         if type(results) == dict:
             print(results["content"])
@@ -14,7 +15,9 @@ def menu():
             for doc in results:
                 print(doc["index"], " : ", doc["title"])
         value = prompt()
-
+        if value == "reload":
+            extract.parse()
+            value = prompt()
 
 def main():
 
