@@ -4,8 +4,6 @@ import lib
 raw_manifest = open("/mnt/user/media/paperless/media/backup/manifest.json")
 manifest = lib.json.load(raw_manifest)
 
-inum = 1
-
 existing, inserted, big, duplicates = 0, 0, 0, 0
 
 def insert(r):
@@ -28,7 +26,7 @@ def exists(r):
     else: return False
 
 def parse():
-    global inserted, big, inum
+    global inserted, big
     print("Parsing manifest json...")
     # for every document in the export
     for document in manifest:
