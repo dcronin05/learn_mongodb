@@ -19,7 +19,7 @@ def menu():
     if value == "reload":
         extract.parse()
         value = prompt()
-    while value != "quit" or value != "reload":
+    while value != "quit" and value != "reload":
         results = search.query(value)
         if type(results) == dict:
             print(results["content"])

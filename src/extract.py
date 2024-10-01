@@ -29,7 +29,7 @@ def exists(r):
 
 def parse():
     global inserted, big, index_num
-    print("entering parse()")
+    print("Parsing manifest json...")
     # for every document in the export
     for document in manifest:
         #if the title and content tags aren't blank
