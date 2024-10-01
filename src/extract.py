@@ -11,6 +11,15 @@ def insert(r):
                                "content": r["content"],
                                "checksum": r["check"],
                                "index": r["index"]})
+def update_pk(r):
+    lib.db.update_one(
+        {
+            "checksum": r["check"]
+        },
+        {
+            "$set": {"index": r["index"]}
+        }
+    )
 
 def exists(r):
     global existing, duplicates
@@ -35,38 +44,14 @@ def parse():
             record = {"title": document["fields"]["title"],
                       "content": document["fields"]["content"],
                       "check": document["fields"]["checksum"],
-                      "index": inum}
+                      "index": document["pk"]}
 
             if lib.sys.getsizeof(record["content"]) < 16777216:
                 if record["content"] != "" and record["title"] != "":
                     if not exists(record):
                         insert(record)
                         inserted = inserted + 1
-                        inum = inum + 1
+                    update_pk(record)
             else: big = big + 1
         except KeyError:
             continue
-
-def parse():
-    global inserted, big, inum
-    print("Parsing manifest json...")
-    # for every document in the export
-    for document in manifest:
-        #if the title and content tags aren't blank
-        try:
-            record = {"title": document["fields"]["title"],
-                      "content": document["fields"]["content"],
-                      "check": document["fields"]["checksum"],
-                      "index": inum}
-
-            if lib.sys.getsizeof(record["content"]) < 16777216:
-                if record["content"] != "" and record["title"] != "":
-                    if not exists(record):
-                        insert(record)
-                        inserted = inserted + 1
-                        index_num = index_num + 1
-            else: big = big + 1
-        except KeyError:
-            continue
-
-
