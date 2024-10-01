@@ -1,6 +1,5 @@
 import extract
 import search
-import insert
 
 def start():
     extract.parse()
