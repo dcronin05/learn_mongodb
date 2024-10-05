@@ -68,7 +68,7 @@ def create_page(r):
 
     request = lib.api.post_pages_create({
         'chapter_id': chapter_id['id'] if chapter_id else "",
-        'tags': t_list if len(tags) > 0 else "[]",
+        'tags': t_list if len(tags) > 0 else [],
         'book_id': 3,
         'page_id': pk,
         'name': name,
@@ -77,9 +77,11 @@ def create_page(r):
 
     if 'error' in request:
         print("\n\ndidn't work: ")
-        print(request['error']['message'])
+        if 'validation' in request['error']:
+            print(request['error']['validation'])
+        else: print(str(request['error'])[0:1000])
         print(t_list)
-    else: print("\n\nWorked: \n", t_list, "\n", request['name'])
+        print(markdown[0:200])
 
 def tag_exists(t):
     tag = lib.db.find_one({"pk": t['pk']})
