@@ -38,6 +38,22 @@ def rec_exists(r):
         return True
     else: return False
 
+def create_page(r):
+    pk = r['pk']
+    name = r['title']
+    markdown = r['content']
+    check = r['check']
+
+    request = lib.api.post_pages_create({
+        'book_id': 3,
+        'page_id': pk,
+        'name': name,
+        'markdown': markdown,
+    })
+
+    # if 'message' in request:
+    print(request)
+
 def parse():
     f = json_file()
     print("Parsing manifest json...")
@@ -50,6 +66,9 @@ def parse():
             r['title'] = fields['title']
             r['content'] = fields['content']
             r['check'] = fields['checksum']
+
+            create_page(r)
+
             if rec_exists(r):
                 continue
             else:
