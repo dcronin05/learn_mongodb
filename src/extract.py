@@ -1,18 +1,20 @@
 import lib
+from lib import json_cursor, json_file
 
-# import paperless database export
-# manifest_path = "/mnt/user/media/paperless/media/backup/manifest.json"
-manifest_path = "/mnt/tower/media/paperless/media/backup/manifest.json"
-raw_manifest = open(manifest_path)
-manifest = lib.json.load(raw_manifest)
-
-existing, inserted, big, duplicates = 0, 0, 0, 0
+existing, inserted, duplicates = 0, 0, 0
 
 def insert(r):
-    lib.db.insert_one({"title": r["title"],
-                               "content": r["content"],
-                               "checksum": r["check"],
-                               "index": r["index"]})
+    global inserted
+    pk = r['pk']
+    check = r['check']
+    content = r['content']
+    title = r['title']
+
+    lib.db.insert_one({'title': title,"content": content,
+                       "checksum": check,
+                       "pk": pk})
+    inserted = inserted + 1
+
 def update_pk(r):
     lib.db.update_one(
         {
@@ -23,7 +25,7 @@ def update_pk(r):
         }
     )
 
-def exists(r):
+def rec_exists(r):
     global existing, duplicates
     record = lib.db.find_one({"checksum": r["check"]})
     dupe = lib.db.find_one({"content": r["content"], "title": r["title"]})
@@ -37,23 +39,19 @@ def exists(r):
     else: return False
 
 def parse():
-    global inserted, big
+    f = json_file()
     print("Parsing manifest json...")
+    r = {}
     # for every document in the export
-    for document in manifest:
-        #if the title and content tags aren't blank
-        try:
-            record = {"title": document["fields"]["title"],
-                      "content": document["fields"]["content"],
-                      "check": document["fields"]["checksum"],
-                      "index": document["pk"]}
-
-            if lib.sys.getsizeof(record["content"]) < 16777216:
-                if record["content"] != "" and record["title"] != "":
-                    if not exists(record):
-                        insert(record)
-                        inserted = inserted + 1
-                    update_pk(record)
-            else: big = big + 1
-        except KeyError:
-            continue
+    for doc in json_cursor(f):
+        fields = doc['fields']
+        if 'title' in fields and 'content' in fields:
+            r['pk'] = doc['pk']
+            r['title'] = fields['title']
+            r['content'] = fields['content']
+            r['check'] = fields['checksum']
+            if rec_exists(r):
+                continue
+            else:
+                insert(r)
+    f.close()

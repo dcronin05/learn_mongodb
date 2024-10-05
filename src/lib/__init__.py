@@ -5,24 +5,18 @@ import sys
 import bookstack
 
 
+def json_file():
+    return open("/mnt/tower/media/paperless/media/backup/test.json")
 
 # import paperless database export
 # manifest_path = "/mnt/user/media/paperless/media/manifest.json"
-f = open("/mnt/tower/media/paperless/media/backup/manifest.json")
 
-manifest = ijson.items(f, 'item')
-
-paperless_docs = {}
-
-for doc in manifest:
-    fields = doc['fields']
-    if 'title' in fields and 'content' in fields:
-        pk = doc['pk']
-        title = fields['title']
-        content = fields['content']
-        check = fields['checksum']
-        paperless_docs[pk] = {'checksum': check, 'title': title, 'content': content}
-
+def json_cursor(f):
+    items = ijson.items(f, 'item')
+    docs = (doc for doc in items \
+            if doc['model'] == "documents.document" \
+            if sys.getsizeof(doc['fields']['content']) < 16777216)
+    return docs
 
 db = pymongo.MongoClient("10.0.0.59", 27017).paperless.content
 
