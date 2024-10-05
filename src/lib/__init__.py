@@ -4,7 +4,7 @@ import json
 import sys
 import bookstack
 
-db = pymongo.MongoClient("localhost", 27017).paperless.content
+db = pymongo.MongoClient("10.0.0.59", 27017).paperless.content
 
 
 url = 'http://10.0.0.59:6875'
