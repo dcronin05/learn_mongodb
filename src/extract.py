@@ -1,7 +1,9 @@
 import lib
 
 # import paperless database export
-raw_manifest = open("/mnt/user/media/paperless/media/backup/manifest.json")
+# manifest_path = "/mnt/user/media/paperless/media/backup/manifest.json"
+manifest_path = "/mnt/tower/media/paperless/media/backup/manifest.json"
+raw_manifest = open(manifest_path)
 manifest = lib.json.load(raw_manifest)
 
 existing, inserted, big, duplicates = 0, 0, 0, 0
