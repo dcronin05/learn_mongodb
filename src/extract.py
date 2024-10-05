@@ -43,21 +43,43 @@ def rec_exists(r):
     else: return False
 
 def create_page(r):
+    tags = r['tags']
     pk = r['pk']
     name = r['title']
     markdown = r['content']
     check = r['check']
 
+    t_list = []
+    for tag in tags:
+        t_list.append(
+            {"name": "pk", "value": str(tag)}
+        )
+    
+    mongo_tag = lib.db.find_one({"type": tag, "pk": pk})
+    if mongo_tag:
+        chapter_id = lib.api.post_chapters_create({
+            'book_id': 3,
+            'name': mongo_tag['name'],
+            'tags': [{"name": "pk", "value": pk}]
+        })
+
+    try: chapter_id
+    except NameError: chapter_id = None
+
     request = lib.api.post_pages_create({
-        'tags': 
+        'chapter_id': chapter_id if chapter_id else "",
+        'tags': t_list if len(tags) > 0 else "[]",
         'book_id': 3,
         'page_id': pk,
         'name': name,
         'markdown': markdown,
     })
 
-    # if 'message' in request:
-    print(request)
+    if 'error' in request:
+        print("\n\ndidn't work: ")
+        print(request['error']['message'])
+        print(t_list)
+    else: print("\n\nWorked: \n", t_list, "\n", request['name'])
 
 def tag_exists(t):
     tag = lib.db.find_one({"pk": t['pk']})
