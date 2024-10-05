@@ -55,7 +55,7 @@ def create_page(r):
             {"name": "pk", "value": str(tag)}
         )
     
-    mongo_tag = lib.db.find_one({"type": tag, "pk": pk})
+    mongo_tag = lib.db.find_one({"type": "tag", "pk": pk})
     if mongo_tag:
         chapter_id = lib.api.post_chapters_create({
             'book_id': 3,
@@ -67,7 +67,7 @@ def create_page(r):
     except NameError: chapter_id = None
 
     request = lib.api.post_pages_create({
-        'chapter_id': chapter_id if chapter_id else "",
+        'chapter_id': chapter_id['id'] if chapter_id else "",
         'tags': t_list if len(tags) > 0 else "[]",
         'book_id': 3,
         'page_id': pk,
