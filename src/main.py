@@ -1,13 +1,12 @@
 import extract
 import search
-import insert
 
 def start():
     extract.parse()
     print("Existing:", extract.existing)
     print("Inserted:", extract.inserted)
-    print("To big:", extract.big)
     print("Dupes:", extract.duplicates)
+    extract.existing, extract.inserted, extract.duplicates = 0, 0, 0
 
     menu()
 
@@ -17,8 +16,7 @@ def prompt():
 def menu():
     value = prompt()
     if value == "reload":
-        extract.parse()
-        value = prompt()
+        start()
     while value != "quit" and value != "reload":
         results = search.query(value)
         if type(results) == dict:
